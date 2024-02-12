@@ -120,6 +120,7 @@
 
                 myaileCountElement.innerHTML = myaileCount.toString();
             }, function onGetMyaileCountError (error) {
+                console.log(error);
                 alert(error.message);
             })
         })
@@ -148,6 +149,7 @@
                     downloadSectionDownloadButtonThanksMessage.style.display = "block";
                 })
             }, function onUpdateMyaileCountError (error) {
+                console.log(error);
                 alert(error.message);
             })
         })

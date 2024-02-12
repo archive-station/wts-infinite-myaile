@@ -1,4 +1,5 @@
 from flask import Flask, request, send_file
+from flask_cors import CORS, cross_origin
 from io import BytesIO
 import os
 
@@ -11,6 +12,7 @@ UPDATE_MYAILE_COUNT_ACTION = "wts_infinite_myaile.api_endpoint.update_myaile_cou
 MAXIMUM_MYAILE_COUNT = 32767
 
 app = Flask(__name__, static_url_path=None)
+cors = CORS(app)
 
 
 # TODO(mikhail): do the nice looking frontend
@@ -21,6 +23,7 @@ def index_page():
 
 # TODO(mikhail): figure out the savedata structure
 @app.post("/wts-infinite-myaile/")
+@cross_origin()
 def api_endpoint():
     savedata = request.files.get("savedata")
 
