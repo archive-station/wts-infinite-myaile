@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>weekly toro station! infinite myaile</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1, h4, section {
+            padding: 1rem;
+        }
+
+        h1, h4 {
+            margin: 0;
+            user-select: none;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h1>weekly toro station! infinite myaile</h1>
+        <h4>created by mikhail "synzr"</h4>
+
+        <section id="savedata-section">
+            <label for="savedata">your savedata file:</label>
+            <input type="file" name="savedata" id="savedata-section-file-input" />
+
+            <button id="savedata-section-continue-button" disabled>continue</button>
+        </section>
+
+        <section id="confirmation-section" style="display: none;">
+            <p>your myaile count is <span id="myaile-count">0</span>, am i right?</p>
+            <button id="confirmation-section-yes-button">yes, it is!</button>
+        </section>
+
+        <section id="download-section" style="display: none;">
+            <p>
+                your myaile count was updated to maximum possible value!
+                please don't forget to backup the original savedata!
+            </p>
+
+            <button id="download-section-download-button">download</button>
+
+            <p id="download-section-download-button-thanks-message" style="display: none;">
+                thanks for using this dumb tool! follow me on <a href="https://x.com/synzr_">twitter</a> for ddi & atomic heart content! :3
+            </p>
+        </section>
+    </main>
+
+    <script>
+        const savedataSection = document.getElementById("savedata-section");
+        const confirmationSection = document.getElementById("confirmation-section");
+        const downloadSection = document.getElementById("download-section");
+
+        const savedataSectionFileInput = document.getElementById("savedata-section-file-input");
+
+        const savedataSectionContinueButton = document.getElementById("savedata-section-continue-button");
+        const confirmationSectionYesButton = document.getElementById("confirmation-section-yes-button");
+        const downloadSectionDownloadButton = document.getElementById("download-section-download-button");
+
+        const myaileCountElement = document.getElementById("myaile-count");
+        const downloadSectionDownloadButtonThanksMessage = document.getElementById("download-section-download-button-thanks-message");
+
+        async function getMyaileCount() {
+            const requestBody = new FormData();
+
+            requestBody.append("action", "wts_infinite_myaile.api_endpoint.get_myaile_count");
+            requestBody.append("savedata", savedataSectionFileInput.files[0]);
+
+            const response = await fetch( "/wts-infinite-myaile/", { method: "POST", body: requestBody })
+            const responseJson = await response.json();
+
+            if (response.statusText !== 'OK') {
+                throw new Error(responseJson.message);
+            }
+
+            return responseJson.myaile_count;
+        }
+
+        async function updateMyaileCount() {
+            const requestBody = new FormData();
+
+            requestBody.append("action", "wts_infinite_myaile.api_endpoint.update_myaile_count");
+            requestBody.append("savedata", savedataSectionFileInput.files[0]);
+
+            const response = await fetch( "/wts-infinite-myaile/", { method: "POST", body: requestBody })
+
+            if (response.statusText !== 'OK') {
+                throw new Error("failed to update myaile count");
+            }
+
+            const responseBlob = await response.blob();
+            return responseBlob;
+        }
+
+        savedataSectionFileInput.addEventListener("change", function onFileInputChange () {
+            savedataSectionContinueButton.disabled = savedataSectionFileInput.files.length === 0;
+        })
+
+        savedataSectionContinueButton.addEventListener("click", function onContinueButtonClick () {
+            savedataSectionContinueButton.disabled = true;
+
+            getMyaileCount().then(function onGetMyaileCountSuccess (myaileCount) {
+                savedataSection.style.display = "none";
+                confirmationSection.style.display = "block";
+
+                myaileCountElement.innerHTML = myaileCount.toString();
+            }, function onGetMyaileCountError (error) {
+                alert(error.message);
+            })
+        })
+
+        confirmationSectionYesButton.addEventListener("click", function onYesButtonClick () {
+            confirmationSectionYesButton.disabled = true;
+
+            updateMyaileCount().then(function onUpdateMyaileCountSuccess (updatedSavedata) {
+                confirmationSection.style.display = "none";
+                downloadSection.style.display = "block";
+
+                downloadSectionDownloadButton.addEventListener("click", function onDownloadButtonClick () {
+                    downloadSectionDownloadButton.disabled = true;
+
+                    const downloadLink = document.createElement("a");
+
+                    downloadLink.download = "SAVEDATA";
+                    downloadLink.href = URL.createObjectURL(updatedSavedata);
+
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+
+                    document.body.removeChild(downloadLink);
+
+                    downloadSectionDownloadButton.disabled = false;
+                    downloadSectionDownloadButtonThanksMessage.style.display = "block";
+                })
+            }, function onUpdateMyaileCountError (error) {
+                alert(error.message);
+            })
+        })
+    </script>
+</body>
+
+</html>
