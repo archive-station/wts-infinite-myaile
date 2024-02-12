@@ -84,7 +84,7 @@
             const response = await fetch( "/wts-infinite-myaile/", { method: "POST", body: requestBody })
             const responseJson = await response.json();
 
-            if (response.statusText !== 'OK') {
+            if (response.status !== 200) {
                 throw new Error(responseJson.message);
             }
 
@@ -99,7 +99,7 @@
 
             const response = await fetch( "/wts-infinite-myaile/", { method: "POST", body: requestBody })
 
-            if (response.statusText !== 'OK') {
+            if (response.status !== 200) {
                 throw new Error("failed to update myaile count");
             }
 
